@@ -1,0 +1,1 @@
+ClockPublisherItem: /clockをpublish. choreonoid1.8がreleaseされたらhttps://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/WorldROSItem.hを使いたい
