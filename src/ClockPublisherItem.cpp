@@ -37,6 +37,7 @@ namespace cnoid {
       }
     }
     this->clockPublisher_ = ros::NodeHandle().advertise<rosgraph_msgs::Clock>("/clock", 1);
+    ros::NodeHandle().setParam("/use_sim_time", true);
     SimulationBar::instance()->sigSimulationAboutToStart().connect([&](SimulatorItem* simulatorItem){onSimulationAboutToStart(simulatorItem);});
   }
 

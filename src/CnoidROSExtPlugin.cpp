@@ -6,11 +6,11 @@
 
 using namespace cnoid;
 
-class V17ROSPlugin : public Plugin
+class ROSExtPlugin : public Plugin
 {
 public:
 
-    V17ROSPlugin() : Plugin("V17ROS")
+    ROSExtPlugin() : Plugin("ROSExt")
     {
       require("Body");
     }
@@ -23,4 +23,4 @@ public:
 
 };
 
-CNOID_IMPLEMENT_PLUGIN_ENTRY(V17ROSPlugin)
+CNOID_IMPLEMENT_PLUGIN_ENTRY(ROSExtPlugin)
