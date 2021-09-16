@@ -3,6 +3,7 @@
 #include <cnoid/MessageView>
 
 #include "ClockPublisherItem.h"
+#include "CraneItem.h"
 
 using namespace cnoid;
 
@@ -18,6 +19,7 @@ public:
     virtual bool initialize() override
     {
       ClockPublisherItem::initializeClass(this);
+      CraneItem::initializeClass(this);
       return true;
     }
 

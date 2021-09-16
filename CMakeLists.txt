@@ -4,7 +4,7 @@ project(choreonoid_ros_ext_plugin)
 add_compile_options(-std=c++11)
 set(CMAKE_BUILD_TYPE Release)
 
-find_package(catkin REQUIRED COMPONENTS roscpp)
+find_package(catkin REQUIRED COMPONENTS roscpp std_srvs)
 find_package(choreonoid REQUIRED)
 
 catkin_package()
@@ -24,6 +24,7 @@ endforeach(lib)
 add_library(CnoidROSExtPlugin SHARED
   src/CnoidROSExtPlugin.cpp
   src/ClockPublisherItem.cpp
+  src/CraneItem.cpp
   )
 target_link_libraries(CnoidROSExtPlugin
   ${catkin_LIBRARIES}

@@ -12,5 +12,6 @@
 
  <depend>choreonoid</depend>
  <depend>roscpp</depend>
+ <depend>std_srvs</depend>
 
 </package>
