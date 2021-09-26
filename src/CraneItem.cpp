@@ -104,7 +104,7 @@ namespace cnoid {
     this->spinner_ = std::make_shared<ros::AsyncSpinner>(1,&(this->callbackQueue_));
     this->LiftSrv_ = nh.advertiseService(this->name()+"/lift",&CraneItem::onLiftSrv,this);
     this->spinner_->start();
-    this->currentSimulatorItem_->addPreDynamicsFunction([&](){ onSimulationStep(); });
+
 
   }
 
@@ -118,6 +118,8 @@ namespace cnoid {
       this->prevR_ = link->R();
       this->prevError_ = 0.0;
     }
+
+    this->currentSimulatorItem_->addPreDynamicsFunction([&](){ onSimulationStep(); });
   }
 
   void CraneItem::onSimulationStep()

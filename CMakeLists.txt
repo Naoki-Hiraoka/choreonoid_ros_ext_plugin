@@ -21,6 +21,9 @@ foreach(lib ${CHOREONOID_LIBRARIES})
   set(CHOREONOID_LIBRARIES_ABS ${CHOREONOID_LIBRARIES_ABS} ${${lib}_abs})
 endforeach(lib)
 
+
+
+
 add_library(CnoidROSExtPlugin SHARED
   src/CnoidROSExtPlugin.cpp
   src/ClockPublisherItem.cpp
@@ -33,3 +36,18 @@ target_link_libraries(CnoidROSExtPlugin
 
 set_target_properties(CnoidROSExtPlugin PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CHOREONOID_PLUGIN_DIR})
 
+
+
+
+add_library(SpringDamperController SHARED src/SpringDamperController.cpp)
+target_link_libraries(SpringDamperController
+  ${catkin_LIBRARIES}
+  ${CHOREONOID_LIBRARIES_ABS}
+  )
+set_target_properties(SpringDamperController PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY ${CHOREONOID_PLUGIN_DIR}/simplecontroller
+  LIBRARY_OUTPUT_DIRECTORY ${CHOREONOID_PLUGIN_DIR}/simplecontroller
+  PREFIX "")
+install(TARGETS SpringDamperController
+  RUNTIME DESTINATION $${CHOREONOID_PLUGIN_DIR}/simplecontroller CONFIGURATIONS Release Debug RelWithDebInfo MinSizeRel
+  LIBRARY DESTINATION ${CHOREONOID_PLUGIN_DIR}/simplecontroller CONFIGURATIONS Release Debug RelWithDebInfo MinSizeRel)
