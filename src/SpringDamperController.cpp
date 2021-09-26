@@ -1,5 +1,6 @@
 #include <cnoid/SimpleController>
 #include <cnoid/Link>
+#include <iostream>
 
 using namespace cnoid;
 
@@ -47,9 +48,8 @@ public:
     {
       for(size_t i=0;i<targets.size();i++){
         targets[i].joint->u() = - targets[i].pgain * targets[i].joint->q() - targets[i].dgain * targets[i].joint->dq();
-
-        return true;
       }
+      return true;
     }
 };
 
