@@ -6,4 +6,4 @@ DepthCameraPublisherItem: depth_cameraのimage,depth,pointcloudをpublish. https
 
 CraneItem: ロボットを吊るすクレーン. <name>/Liftにstd_srvsサービスを送るとクレーンをオン, オフできる.
 
-SpringDamplerController: 関節をSpringDamper化するSimplerController
+SpringDamplerController: 関節をSpringDamper化するSimpleController
