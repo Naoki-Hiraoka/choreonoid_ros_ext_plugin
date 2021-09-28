@@ -1,0 +1,107 @@
+items: 
+  id: 0
+  name: "Root"
+  plugin: Base
+  class: RootItem
+  children: 
+    - 
+      id: 1
+      name: "World"
+      plugin: Body
+      class: WorldItem
+      data: 
+        collisionDetection: false
+        collisionDetector: AISTCollisionDetector
+        materialTableFile: "${SHARE}/default/materials.yaml"
+      children: 
+        - 
+          id: 2
+          name: "Tank"
+          plugin: Body
+          class: BodyItem
+          data: 
+            modelFile: "${SHARE}/model/Tank/Tank.body"
+            currentBaseLink: ""
+            rootPosition: [ -2, -0.5, 0.1 ]
+            rootAttitude: [ 
+              1, 0, 0, 
+              0, 1, 0, 
+              0, 0, 1 ]
+            jointPositions: [  0.000000,  0.000000 ]
+            initialRootPosition: [ -2, -0.5, 0.1 ]
+            initialRootAttitude: [ 
+              1, 0, 0, 
+              0, 1, 0, 
+              0, 0, 1 ]
+            initialJointPositions: [  0.000000,  0.000000 ]
+            zmp: [ 0, 0, 0 ]
+            collisionDetection: true
+            selfCollisionDetection: false
+            isEditable: true
+          children: 
+            - 
+              id: 3
+              name: "DepthCameraPublisher"
+              plugin: ROSExt
+              class: DepthCameraPublisherItem
+              data:
+                cameraName: Kinect
+        - 
+          id: 4
+          name: "Floor"
+          plugin: Body
+          class: BodyItem
+          data: 
+            modelFile: "${SHARE}/model/misc/floor.body"
+            currentBaseLink: "BASE"
+            rootPosition: [ 0, 0, -0.1 ]
+            rootAttitude: [ 
+              1, 0, 0, 
+              0, 1, 0, 
+              0, 0, 1 ]
+            jointPositions: [  ]
+            initialRootPosition: [ 0, 0, -0.1 ]
+            initialRootAttitude: [ 
+              1, 0, 0, 
+              0, 1, 0, 
+              0, 0, 1 ]
+            zmp: [ 0, 0, 0 ]
+            selfCollisionDetection: false
+            isEditable: true
+        - 
+          id: 5
+          name: "AISTSimulator"
+          plugin: Body
+          class: AISTSimulatorItem
+          data: 
+            timestep: 0.001
+            realtimeSync: true
+            recording: "off"
+          children: 
+            - 
+              id: 6
+              name: "GLVisionSimulator"
+              plugin: Body
+              class: GLVisionSimulatorItem
+              data: 
+                enabled: true
+                targetBodies: [ Tank ]
+                targetSensors: [ Kinect ]
+                maxFrameRate: 1000
+                maxLatency: 1
+                recordVisionData: false
+                threadMode: Sensor
+                bestEffort: true
+                allSceneObjects: false
+                rangeSensorPrecisionRatio: 2
+                depthError: 0
+                enableHeadLight: true
+                enableAdditionalLights: true
+                antiAliasing: false
+views: 
+  "Items": 
+    selected: [  ]
+    checked: [ 2, 4 ]
+    expanded: [ 1, 2, 5 ]
+  "Scene": 
+    floorGrid: false

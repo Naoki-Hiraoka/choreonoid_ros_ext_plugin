@@ -5,6 +5,7 @@
 #include "ClockPublisherItem.h"
 #include "CraneItem.h"
 #include "CameraPublisherItem.h"
+#include "DepthCameraPublisherItem.h"
 
 using namespace cnoid;
 
@@ -22,6 +23,7 @@ public:
       ClockPublisherItem::initializeClass(this);
       CraneItem::initializeClass(this);
       CameraPublisherItem::initializeClass(this);
+      DepthCameraPublisherItem::initializeClass(this);
       return true;
     }
 

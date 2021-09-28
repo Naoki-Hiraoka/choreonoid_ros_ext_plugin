@@ -70,41 +70,48 @@ namespace cnoid {
   }
 
   void CameraPublisherItem::updateVisionSensor() {
+    std_msgs::Header header;
+    header.stamp.fromSec(this->io_->currentTime());
+    if(this->frameId_.size()!=0) header.frame_id = this->frameId_;
+    else header.frame_id = this->sensor_->name();
+
     sensor_msgs::Image vision;
-    vision.header.stamp.fromSec(this->io_->currentTime());
-    if(this->frameId_.size()!=0) vision.header.frame_id = this->frameId_;
-    else vision.header.frame_id = this->sensor_->name();
-    vision.height = this->sensor_->image().height();
-    vision.width = this->sensor_->image().width();
-    if (this->sensor_->image().numComponents() == 3)
+    {
+      vision.header = header;
+      vision.height = this->sensor_->image().height();
+      vision.width = this->sensor_->image().width();
+      if (this->sensor_->image().numComponents() == 3)
         vision.encoding = sensor_msgs::image_encodings::RGB8;
-    else if (this->sensor_->image().numComponents() == 1)
+      else if (this->sensor_->image().numComponents() == 1)
         vision.encoding = sensor_msgs::image_encodings::MONO8;
-    else {
+      else {
         ROS_WARN("unsupported image component number: %i", this->sensor_->image().numComponents());
+      }
+      vision.is_bigendian = 0;
+      vision.step = this->sensor_->image().width() * this->sensor_->image().numComponents();
+      vision.data.resize(vision.step * vision.height);
+      std::memcpy(&(vision.data[0]), &(this->sensor_->image().pixels()[0]), vision.step * vision.height);
     }
-    vision.is_bigendian = 0;
-    vision.step = this->sensor_->image().width() * this->sensor_->image().numComponents();
-    vision.data.resize(vision.step * vision.height);
-    std::memcpy(&(vision.data[0]), &(this->sensor_->image().pixels()[0]), vision.step * vision.height);
     this->pub_.publish(vision);
 
     sensor_msgs::CameraInfo info;
-    info.header = vision.header;
-    info.width  = this->sensor_->image().width();
-    info.height = this->sensor_->image().height();
-    info.distortion_model = "plumb_bob";
-    info.K[0] = this->sensor_->image().height() / 2 / tan(this->sensor_->fieldOfView());
-    info.K[2] = this->sensor_->image().width()/2;
-    info.K[4] = this->sensor_->image().height() / 2 / tan(this->sensor_->fieldOfView());
-    info.K[5] = this->sensor_->image().height()/2;
-    info.K[8] = 1;
-    info.P[0] = this->sensor_->image().height() / 2 / tan(this->sensor_->fieldOfView());
-    info.P[2] = this->sensor_->image().width()/2;
-    info.P[5] = this->sensor_->image().height() / 2 / tan(this->sensor_->fieldOfView());
-    info.P[6] = this->sensor_->image().height()/2;
-    info.P[10] = 1;
-    info.R[0] = info.R[4] = info.R[8] = 1;
+    {
+      info.header = header;
+      info.width  = this->sensor_->image().width();
+      info.height = this->sensor_->image().height();
+      info.distortion_model = "plumb_bob";
+      info.K[0] = std::min(info.width, info.height) / 2 / tan(this->sensor_->fieldOfView()/2);
+      info.K[2] = (this->sensor_->image().width()-1)/2.0;
+      info.K[4] = info.K[0];
+      info.K[5] = (this->sensor_->image().height()-1)/2.0;
+      info.K[8] = 1;
+      info.P[0] = info.K[0];
+      info.P[2] = info.K[2];
+      info.P[5] = info.K[4];
+      info.P[6] = info.K[5];
+      info.P[10] = 1;
+      info.R[0] = info.R[4] = info.R[8] = 1;
+    }
     this->infoPub_.publish(info);
 
   }

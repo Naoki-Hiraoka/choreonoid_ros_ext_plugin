@@ -29,6 +29,7 @@ add_library(CnoidROSExtPlugin SHARED
   src/ClockPublisherItem.cpp
   src/CraneItem.cpp
   src/CameraPublisherItem.cpp
+  src/DepthCameraPublisherItem.cpp
   )
 target_link_libraries(CnoidROSExtPlugin
   ${catkin_LIBRARIES}
