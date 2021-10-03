@@ -1,0 +1,8 @@
+- name: 'Crane'
+  service: '/Crane/lift'
+  column: 0
+  service_type: 'SetBool'
+  default_value: true
+#  <node pkg="jsk_rqt_plugins" type="rqt_service_buttons" name="mode_switch_service_buttons" clear_params="true" output="screen">
+#    <param name="~layout_yaml_file" value="package://choreonoid_ros_ext_plugin/sample/Crane_service_button_layout.yaml"/>
+#  </node>
