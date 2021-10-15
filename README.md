@@ -8,7 +8,7 @@ DepthCameraPublisherItem: depth_cameraのimage,depth,pointcloudをpublish. https
 
 CraneItem: ロボットを吊るすクレーン. <name>/Liftに`std_srvs/SetBool`サービスを送るとクレーンをオン, オフできる.
 
-SimulatorWorldReset: シミュレータ内の全Bodyを初期状態にリセットする. <name>/Resetに`std_srvs/Trigger`サービスを送るとリセットできる.`SimulatorItem::startSimulation`との差異は、時計がリセットされない点.
+SimulatorWorldResetItem: シミュレータ内の全Bodyを初期状態にリセットする. <name>/Resetに`std_srvs/Trigger`サービスを送るとリセットできる.`SimulatorItem::startSimulation`との差異は、時計がリセットされない点.
 
 # SimpleController
 
