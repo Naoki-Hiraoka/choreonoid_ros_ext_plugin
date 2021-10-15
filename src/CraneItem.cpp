@@ -44,8 +44,6 @@ namespace cnoid {
   }
 
   void CraneItem::onPositionChanged(){
-    // create or recreate an RTC corresponding to the body
-    // The target body can be detected like this:
     BodyItem* ownerBodyItem = findOwnerItem<BodyItem>();
     if(ownerBodyItem){
       if(ownerBodyItem->body()->link(this->linkName_)){

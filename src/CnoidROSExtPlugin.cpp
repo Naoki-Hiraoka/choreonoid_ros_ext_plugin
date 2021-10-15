@@ -6,6 +6,7 @@
 #include "CraneItem.h"
 #include "CameraPublisherItem.h"
 #include "DepthCameraPublisherItem.h"
+#include "SimulatorWorldResetItem.h"
 
 using namespace cnoid;
 
@@ -24,6 +25,7 @@ public:
       CraneItem::initializeClass(this);
       CameraPublisherItem::initializeClass(this);
       DepthCameraPublisherItem::initializeClass(this);
+      SimulatorWorldResetItem::initializeClass(this);
       return true;
     }
 

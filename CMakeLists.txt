@@ -30,6 +30,7 @@ add_library(CnoidROSExtPlugin SHARED
   src/CraneItem.cpp
   src/CameraPublisherItem.cpp
   src/DepthCameraPublisherItem.cpp
+  src/SimulatorWorldResetItem.cpp
   )
 target_link_libraries(CnoidROSExtPlugin
   ${catkin_LIBRARIES}
