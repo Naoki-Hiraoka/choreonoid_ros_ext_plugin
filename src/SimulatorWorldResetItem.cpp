@@ -94,7 +94,7 @@ namespace cnoid {
 
   bool SimulatorWorldResetItem::onResetSrv(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& res){
     this->resetStep_ = 1;
-    res.success = false;
+    res.success = true;
     return true;
   }
 }
