@@ -9,6 +9,7 @@
 #include <cnoid/BodyItem>
 #include <cnoid/ConnectionSet>
 #include <cnoid/Archive>
+#include <cnoid/ToolBar>
 
 namespace cnoid {
 
@@ -27,6 +28,7 @@ namespace cnoid {
     void onSimulationAboutToStart(cnoid::SimulatorItem* simulatorItem);
     void onSimulationStarted();
     void onSimulationStep();
+    void onButtonToggled(bool on);
     void onDraggerDragged();
 
     enum state {ENABLED, DISABLED} state_ = DISABLED;
@@ -44,6 +46,8 @@ namespace cnoid {
     double dgainR_;
 
     cnoid::PositionDraggerPtr positionDragger_;
+    cnoid::ToolBar* toolBar_;
+    cnoid::ToolButton* button_;
   };
 
   typedef ref_ptr<PositionDraggerItem> PositionDraggerItemPtr;

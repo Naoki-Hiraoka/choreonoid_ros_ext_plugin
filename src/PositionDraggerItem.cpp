@@ -5,6 +5,8 @@
 #include <cnoid/SimulatorItem>
 #include <cnoid/EigenUtil>
 #include <cnoid/SceneView>
+#include <cnoid/LazyCaller>
+#include <cnoid/MainWindow>
 
 namespace cnoid {
 
@@ -19,27 +21,20 @@ namespace cnoid {
     positionDragger_->sigPositionDragged().connect(std::bind(&PositionDraggerItem::onDraggerDragged, this));
     SceneView::instance()->sceneWidget()->sceneRoot()->addChild(this->positionDragger_);
 
+    cnoid::callLater([&](){
+        this->toolBar_ = new ToolBar((this->name()+"Bar").c_str());
+        this->toolBar_->setVisibleByDefault(true);
+        MainWindow::instance()->addToolBar(this->toolBar_);
+        this->button_ = this->toolBar_->addToggleButton(QIcon(":/Base/icons/walkthrough.png"),this->linkName_.c_str());
+        this->button_->sigToggled().connect([&](bool on){ onButtonToggled(on); });
+      });
+
     SimulationBar::instance()->sigSimulationAboutToStart().connect([&](cnoid::SimulatorItem* simulatorItem){onSimulationAboutToStart(simulatorItem);});
   }
 
   void PositionDraggerItem::onPositionChanged(){
-    BodyItem* ownerBodyItem = findOwnerItem<BodyItem>();
-    if(ownerBodyItem){
-      if(ownerBodyItem->body()->link(this->linkName_)){
-        this->bodyItem_ = ownerBodyItem;
-        cnoid::LinkPtr link = ownerBodyItem->body()->link(this->linkName_);
-        this->targetT_ = link->T() * this->localT_;
-        this->prevError_ = cnoid::Vector6::Zero();
-        this->positionDragger_->setRadius(0.2);
-        this->positionDragger_->setDraggerAlwaysShown(true);
-        this->positionDragger_->T() = this->targetT_;
-      }else{
-        MessageView::instance()->putln(this->linkName_+" not found.", MessageView::ERROR);
-        this->bodyItem_ = nullptr;
-      }
-    } else {
-      this->bodyItem_ = nullptr;
-    }
+    this->bodyItem_ = findOwnerItem<BodyItem>();
+    this->onButtonToggled(this->state_ == ENABLED);
   }
 
   bool PositionDraggerItem::store(Archive& archive) {
@@ -55,6 +50,7 @@ namespace cnoid {
 
   bool PositionDraggerItem::restore(const Archive& archive) {
     archive.read("linkName", this->linkName_);
+    if(this->button_)this->button_->setToolTip(this->linkName_.c_str());
     cnoid::Vector3 p;
     read(archive,"localp", p);
     this->localT_.translation() = p;
@@ -68,6 +64,27 @@ namespace cnoid {
     return true;
   }
 
+  void PositionDraggerItem::onButtonToggled(bool on){
+    if(on){
+      if(this->bodyItem_){
+        cnoid::LinkPtr link = this->bodyItem_->body()->link(this->linkName_);
+        if(link){
+          this->targetT_ = link->T() * this->localT_;
+          this->prevError_ = cnoid::Vector6::Zero();
+          this->positionDragger_->setRadius(0.2);
+          this->positionDragger_->setDraggerAlwaysShown(true);
+          this->positionDragger_->T() = this->targetT_;
+          state_ = ENABLED;
+        }else{
+          MessageView::instance()->putln(this->linkName_+" not found.", MessageView::ERROR);
+        }
+      }
+    }else{
+      this->positionDragger_->setDraggerAlwaysHidden(true);
+      state_ = DISABLED;
+    }
+  }
+
   void PositionDraggerItem::onDraggerDragged() {
     SimulatorItem* activeSimulatorItem = SimulatorItem::findActiveSimulatorItemFor(bodyItem_);
     this->targetT_ = this->positionDragger_->draggedPosition();
@@ -79,19 +96,12 @@ namespace cnoid {
     this->currentSimulatorItem_ = simulatorItem;
     this->currentSimulatorItemConnections_.add(
         simulatorItem->sigSimulationStarted().connect([&](){ onSimulationStarted(); }));
+
   }
 
   void PositionDraggerItem::onSimulationStarted()
   {
-    if(this->bodyItem_){
-      cnoid::LinkPtr link = this->bodyItem_->body()->link(this->linkName_);
-      this->targetT_ = link->T() * this->localT_;
-      this->prevError_ = cnoid::Vector6::Zero();
-      this->positionDragger_->setRadius(0.2);
-      this->positionDragger_->setDraggerAlwaysShown(true);
-      this->positionDragger_->T() = this->targetT_;
-      state_ = ENABLED;
-    }
+    this->onButtonToggled(this->state_ == ENABLED);
 
     this->currentSimulatorItem_->addPreDynamicsFunction([&](){ onSimulationStep(); });
   }
