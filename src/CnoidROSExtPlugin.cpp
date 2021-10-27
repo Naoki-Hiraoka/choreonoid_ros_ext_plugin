@@ -7,6 +7,7 @@
 #include "CameraPublisherItem.h"
 #include "DepthCameraPublisherItem.h"
 #include "SimulatorWorldResetItem.h"
+#include "PositionDraggerItem.h"
 
 using namespace cnoid;
 
@@ -26,6 +27,7 @@ public:
       CameraPublisherItem::initializeClass(this);
       DepthCameraPublisherItem::initializeClass(this);
       SimulatorWorldResetItem::initializeClass(this);
+      PositionDraggerItem::initializeClass(this);
       return true;
     }
 
