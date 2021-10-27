@@ -16,7 +16,7 @@ depth_cameraのimage,depth,pointcloudをpublish. https://github.com/choreonoid/c
 シミュレータ内の全Bodyを初期状態にリセットする. `<name>/Reset`に`std_srvs/Trigger`サービスを送るとリセットできる.`SimulatorItem::startSimulation`との差異は、時計がリセットされない点.
 
 ## PositionDraggerItem
-(ROSとは関係ない). リンクに対してPositionDraggerを用いて力を作用させられる. ツールバーのボタンからオンオフを切り替えられる。
+(ROSとは関係ない). PositionDraggerを用いてリンクに力を作用させて所望の位置に固定できる. ツールバーのボタンからオンオフを切り替えられる。
 
 # SimpleController
 
