@@ -21,7 +21,7 @@ namespace cnoid {
     positionDragger_->sigPositionDragged().connect(std::bind(&PositionDraggerItem::onDraggerDragged, this));
     SceneView::instance()->sceneWidget()->sceneRoot()->addChild(this->positionDragger_);
 
-    cnoid::callLater([&](){
+    cnoid::callLater([&](){ // コンストラクタ内だとthis->name()が設定されていない
         this->toolBar_ = new ToolBar((this->name()+"Bar").c_str());
         this->toolBar_->setVisibleByDefault(true);
         MainWindow::instance()->addToolBar(this->toolBar_);
