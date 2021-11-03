@@ -9,6 +9,9 @@ camera画像をpublish. https://github.com/choreonoid/choreonoid_ros/blob/master
 ## DepthCameraPublisherItem
 depth_cameraのimage,depth,pointcloudをpublish. https://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/BodyROSItem.h との差異は、欲しいcameraだけをpublishする点と、camera_infoとdepth画像もpublishする点.
 
+## OdometryCameraPublisherItem
+cameraの現在地と速度をnav_msgs/Odometryでpublish. (Ground Truthになってしまう)
+
 ## CraneItem
 ロボットを吊るすクレーン. `<name>/Lift`に`std_srvs/SetBool`サービスを送るとクレーンをオン, オフできる.
 

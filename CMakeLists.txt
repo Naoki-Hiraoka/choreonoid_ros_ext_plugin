@@ -4,7 +4,7 @@ project(choreonoid_ros_ext_plugin)
 add_compile_options(-std=c++11)
 set(CMAKE_BUILD_TYPE Release)
 
-find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs image_transport)
+find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs image_transport nav_msgs)
 find_package(choreonoid REQUIRED)
 
 catkin_package()
@@ -30,6 +30,7 @@ add_library(CnoidROSExtPlugin SHARED
   src/CraneItem.cpp
   src/CameraPublisherItem.cpp
   src/DepthCameraPublisherItem.cpp
+  src/OdometryCameraPublisherItem.cpp
   src/SimulatorWorldResetItem.cpp
   src/PositionDraggerItem.cpp
   )
