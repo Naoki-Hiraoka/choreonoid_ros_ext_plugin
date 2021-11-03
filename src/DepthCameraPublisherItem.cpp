@@ -6,6 +6,7 @@
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/image_encodings.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <limits>
 
 namespace cnoid {
 
@@ -76,7 +77,7 @@ namespace cnoid {
 
       std::string pointTopicName;
       if(this->pointCloudTopicName_!="") pointTopicName = this->pointCloudTopicName_;
-      else pointTopicName = this->cameraName_+"/depth/points";
+      else pointTopicName = this->cameraName_+"/depth_registered/points";
       this->pointCloudPub_ = nh.advertise<sensor_msgs::PointCloud2>(pointTopicName, 1);
 
       this->sensor_->sigStateChanged().connect(boost::bind(&DepthCameraPublisherItem::updateVisionSensor, this));
@@ -143,7 +144,9 @@ namespace cnoid {
       for(int i = 0; i < points.size(); i++) {
         // OpenHRP3 camera, front direction is -Z axis, ROS camera is Z axis
         // http://www.openrtp.jp/openhrp3/jp/create_model.html
-        *dst_ptr++ = points[i].z() * -1;
+        float z = points[i].z() * -1;
+        if( z < this->minDistance_ ) z = -std::numeric_limits<float>::infinity(); // Detections that are too close to the sensor to quantify shall be represented by -Inf. https://www.ros.org/reps/rep-0117.html
+        *dst_ptr++ = z;
       }
     }
     this->depthImagePub_.publish(depth);
@@ -191,6 +194,7 @@ namespace cnoid {
         float x = points[j].x();
         float y = - points[j].y();
         float z = - points[j].z();
+        if( z < this->minDistance_ ) z = -std::numeric_limits<float>::infinity(); // Detections that are too close to the sensor to quantify shall be represented by -Inf. https://www.ros.org/reps/rep-0117.html
         std::memcpy(&dst[0], &x, 4);
         std::memcpy(&dst[4], &y, 4);
         std::memcpy(&dst[8], &z, 4);
@@ -214,6 +218,7 @@ namespace cnoid {
     archive.write("depthCameraInfoTopicName", this->depthCameraInfoTopicName_);
     archive.write("pointCloudTopicName", this->pointCloudTopicName_);
     archive.write("frameId", this->frameId_);
+    archive.write("minDistance", this->minDistance_);
     return true;
   }
 
@@ -225,6 +230,7 @@ namespace cnoid {
     archive.read("depthCameraInfoTopicName", this->depthCameraInfoTopicName_);
     archive.read("pointCloudTopicName", this->pointCloudTopicName_);
     archive.read("frameId", this->frameId_);
+    archive.read("minDistance", this->minDistance_);
     return true;
   }
 

@@ -42,6 +42,7 @@ namespace cnoid {
     std::string depthCameraInfoTopicName_;
     std::string pointCloudTopicName_;
     std::string frameId_;
+    double minDistance_;
 
     cnoid::ControllerIO* io_;
     cnoid::RangeCameraPtr sensor_;
