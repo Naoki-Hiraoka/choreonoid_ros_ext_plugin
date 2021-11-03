@@ -161,7 +161,7 @@ namespace cnoid {
       pointcloud.is_bigendian = false;
       pointcloud.is_dense = true;
       if (this->sensor_->imageType() == cnoid::Camera::COLOR_IMAGE) {
-        pointcloud.fields.resize(6);
+        pointcloud.fields.resize(4);
         pointcloud.fields[3].name = "rgb";
         pointcloud.fields[3].offset = 12;
         pointcloud.fields[3].count = 1;
@@ -174,15 +174,15 @@ namespace cnoid {
       pointcloud.fields[0].name = "x";
       pointcloud.fields[0].offset = 0;
       pointcloud.fields[0].datatype = sensor_msgs::PointField::FLOAT32;
-      pointcloud.fields[0].count = 4;
+      pointcloud.fields[0].count = 1;
       pointcloud.fields[1].name = "y";
       pointcloud.fields[1].offset = 4;
       pointcloud.fields[1].datatype = sensor_msgs::PointField::FLOAT32;
-      pointcloud.fields[1].count = 4;
+      pointcloud.fields[1].count = 1;
       pointcloud.fields[2].name = "z";
       pointcloud.fields[2].offset = 8;
       pointcloud.fields[2].datatype = sensor_msgs::PointField::FLOAT32;
-      pointcloud.fields[2].count = 4;
+      pointcloud.fields[2].count = 1;
       pointcloud.row_step = pointcloud.point_step * pointcloud.width;
       const std::vector<Vector3f>& points = this->sensor_->constPoints();
       const unsigned char* pixels = this->sensor_->constImage().pixels();
