@@ -7,7 +7,7 @@
 camera画像をpublish. https://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/BodyROSItem.h との差異は、欲しいcamera画像だけをpublishする点と、camera_infoもpublishする点.
 
 ## DepthCameraPublisherItem
-depth_cameraのimage,depth,pointcloudをpublish. https://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/BodyROSItem.h との差異は、欲しいcameraだけをpublishする点と、camera_infoとdepth画像もpublishする点.
+depth_cameraのimage,depth,pointcloudをpublish. https://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/BodyROSItem.h との差異は、欲しいcameraだけをpublishする点と、camera_infoとdepth画像もpublishする点と、depthカメラが計測できる最小距離の制限をシミュレーションできる点(`frontClipDistance`だと透視してしまう).
 
 ## OdometryCameraPublisherItem
 cameraの現在地と速度をnav_msgs/Odometryでpublish. (Ground Truthになってしまう)
