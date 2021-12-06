@@ -55,12 +55,12 @@ namespace cnoid {
     if (this->sensor_) {
       std::string topicName;
       if(this->imageTopicName_!="") topicName = this->imageTopicName_;
-      else topicName = this->cameraName_+"/image_raw";
+      else topicName = this->cameraName_+"/color/image_raw";
       this->pub_ = it.advertise(topicName, 1);
 
       std::string infoName;
       if(this->cameraInfoTopicName_!="") infoName = this->cameraInfoTopicName_;
-      else infoName = this->cameraName_+"/camera_info";
+      else infoName = this->cameraName_+"/color/camera_info";
       this->infoPub_ = nh.advertise<sensor_msgs::CameraInfo>(infoName, 1);
 
       this->sensor_->sigStateChanged().connect(boost::bind(&CameraPublisherItem::updateVisionSensor, this));

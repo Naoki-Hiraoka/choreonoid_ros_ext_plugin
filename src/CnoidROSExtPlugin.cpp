@@ -7,6 +7,7 @@
 #include "CameraPublisherItem.h"
 #include "DepthCameraPublisherItem.h"
 #include "OdometryCameraPublisherItem.h"
+#include "OdometryPublisherItem.h"
 #include "SimulatorWorldResetItem.h"
 #include "PositionDraggerItem.h"
 
@@ -28,6 +29,7 @@ public:
       CameraPublisherItem::initializeClass(this);
       DepthCameraPublisherItem::initializeClass(this);
       OdometryCameraPublisherItem::initializeClass(this);
+      OdometryPublisherItem::initializeClass(this);
       SimulatorWorldResetItem::initializeClass(this);
       PositionDraggerItem::initializeClass(this);
       return true;

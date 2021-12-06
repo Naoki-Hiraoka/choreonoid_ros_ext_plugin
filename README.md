@@ -12,6 +12,9 @@ depth_cameraのimage,depth,pointcloudをpublish. https://github.com/choreonoid/c
 ## OdometryCameraPublisherItem
 cameraの現在地と速度をnav_msgs/Odometryでpublish. (Ground Truthになってしまう)
 
+## OdometryPublisherItem
+linkやcameraの現在地と速度をnav_msgs/Odometryでpublish. (Ground Truthになってしまう). OdometryCameraPublisherItemはcameraの画像更新のタイミングでpublishするが、OdometryPublisherItemはcameraの画像更新と関係なく任意のrateでpublishする. cameraの画像のシミュレーションをせずにcameraのオドメトリだけ欲しい場合などに.
+
 ## CraneItem
 ロボットを吊るすクレーン. `<name>/Lift`に`std_srvs/SetBool`サービスを送るとクレーンをオン, オフできる.
 
