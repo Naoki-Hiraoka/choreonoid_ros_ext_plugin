@@ -69,7 +69,7 @@ namespace cnoid {
     nav_msgs::Odometry odom;
     {
       odom.header = header;
-      if(this->frameId_.size()!=0) odom.child_frame_id = this->childFrameId_;
+      if(this->childFrameId_.size()!=0) odom.child_frame_id = this->childFrameId_;
       else odom.child_frame_id = this->sensor_->name();
 
       cnoid::Position pose = this->sensor_->link()->T() * this->sensor_->T_local();
