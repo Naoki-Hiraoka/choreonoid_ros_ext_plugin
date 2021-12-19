@@ -77,7 +77,7 @@ namespace cnoid {
     {
       odom.header = header;
       if(this->childFrameId_.size()!=0) odom.child_frame_id = this->childFrameId_;
-      else odom.child_frame_id = this->sensor_->name();
+      else odom.child_frame_id = this->targetName_;
 
       cnoid::Position pose;
       if(this->link_){
@@ -151,3 +151,4 @@ namespace cnoid {
   }
 
 }
+

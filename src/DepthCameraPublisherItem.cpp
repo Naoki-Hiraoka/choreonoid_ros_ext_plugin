@@ -55,7 +55,7 @@ namespace cnoid {
 
     this->sensor_ = this->io_->body()->findDevice<cnoid::RangeCamera>(this->cameraName_);
     if (this->sensor_) {
-      if(!this->depthOnly_){
+      if(this->publishColor_){
         std::string topicName;
         if(this->imageTopicName_!="") topicName = this->imageTopicName_;
         else topicName = this->cameraName_+"/color/image_raw";
@@ -67,17 +67,19 @@ namespace cnoid {
         this->infoPub_ = nh.advertise<sensor_msgs::CameraInfo>(infoName, 1);
       }
 
-      std::string depthTopicName;
-      if(this->depthImageTopicName_!="") depthTopicName = this->depthImageTopicName_;
-      else depthTopicName = this->cameraName_+"/depth/image_raw";
-      this->depthImagePub_ = it.advertise(depthTopicName, 1);
+      if(this->publishDepth_){
+        std::string depthTopicName;
+        if(this->depthImageTopicName_!="") depthTopicName = this->depthImageTopicName_;
+        else depthTopicName = this->cameraName_+"/depth/image_raw";
+        this->depthImagePub_ = it.advertise(depthTopicName, 1);
 
-      std::string depthInfoName;
-      if(this->depthCameraInfoTopicName_!="") depthInfoName = this->depthCameraInfoTopicName_;
-      else depthInfoName = this->cameraName_+"/depth/camera_info";
-      this->depthInfoPub_ = nh.advertise<sensor_msgs::CameraInfo>(depthInfoName, 1);
+        std::string depthInfoName;
+        if(this->depthCameraInfoTopicName_!="") depthInfoName = this->depthCameraInfoTopicName_;
+        else depthInfoName = this->cameraName_+"/depth/camera_info";
+        this->depthInfoPub_ = nh.advertise<sensor_msgs::CameraInfo>(depthInfoName, 1);
+      }
 
-      if(!this->depthOnly_){
+      if(this->publishPointCloud_){
         std::string pointTopicName;
         if(this->pointCloudTopicName_!="") pointTopicName = this->pointCloudTopicName_;
         else pointTopicName = this->cameraName_+"/depth_registered/points";
@@ -115,7 +117,7 @@ namespace cnoid {
       info.R[0] = info.R[4] = info.R[8] = 1;
     }
 
-    if(!this->depthOnly_){
+    if(this->publishColor_){
       sensor_msgs::Image vision;
       {
         vision.header = header;
@@ -138,29 +140,31 @@ namespace cnoid {
       this->infoPub_.publish(info);
     }
 
-    sensor_msgs::Image depth;
-    {
-      depth.header = header;
-      depth.width = this->sensor_->resolutionX();
-      depth.height = this->sensor_->resolutionY();
-      depth.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
-      depth.step  = depth.width * 4;
-      depth.data.resize(depth.step * depth.height);
-      float* dst_ptr = (float *)depth.data.data();
-      const std::vector<Vector3f>& points = this->sensor_->constPoints();
-      for(int i = 0; i < points.size(); i++) {
-        // OpenHRP3 camera, front direction is -Z axis, ROS camera is Z axis
-        // http://www.openrtp.jp/openhrp3/jp/create_model.html
-        float z = points[i].z() * -1;
-        if( z < this->minDistance_ ) z = -std::numeric_limits<float>::infinity(); // Detections that are too close to the sensor to quantify shall be represented by -Inf. https://www.ros.org/reps/rep-0117.html
-        *dst_ptr++ = z;
+    if(this->publishDepth_){
+      sensor_msgs::Image depth;
+      {
+        depth.header = header;
+        depth.width = this->sensor_->resolutionX();
+        depth.height = this->sensor_->resolutionY();
+        depth.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
+        depth.step  = depth.width * 4;
+        depth.data.resize(depth.step * depth.height);
+        float* dst_ptr = (float *)depth.data.data();
+        const std::vector<Vector3f>& points = this->sensor_->constPoints();
+        for(int i = 0; i < points.size(); i++) {
+          // OpenHRP3 camera, front direction is -Z axis, ROS camera is Z axis
+          // http://www.openrtp.jp/openhrp3/jp/create_model.html
+          float z = points[i].z() * -1;
+          if( z < this->minDistance_ ) z = -std::numeric_limits<float>::infinity(); // Detections that are too close to the sensor to quantify shall be represented by -Inf. https://www.ros.org/reps/rep-0117.html
+          *dst_ptr++ = z;
+        }
       }
+      this->depthImagePub_.publish(depth);
+
+      this->depthInfoPub_.publish(info);
     }
-    this->depthImagePub_.publish(depth);
 
-    this->depthInfoPub_.publish(info);
-
-    if(!this->depthOnly_){
+    if(this->publishPointCloud_){
       sensor_msgs::PointCloud2 pointcloud;
       {
         pointcloud.header = header;
@@ -228,7 +232,9 @@ namespace cnoid {
     archive.write("pointCloudTopicName", this->pointCloudTopicName_);
     archive.write("frameId", this->frameId_);
     archive.write("minDistance", this->minDistance_);
-    archive.write("depthOnly", this->depthOnly_);
+    archive.write("publishColor", this->publishColor_);
+    archive.write("publishDepth", this->publishDepth_);
+    archive.write("publishPointCloud", this->publishPointCloud_);
     return true;
   }
 
@@ -241,7 +247,9 @@ namespace cnoid {
     archive.read("pointCloudTopicName", this->pointCloudTopicName_);
     archive.read("frameId", this->frameId_);
     archive.read("minDistance", this->minDistance_);
-    archive.read("depthOnly", this->depthOnly_);
+    archive.read("publishColor", this->publishColor_);
+    archive.read("publishDepth", this->publishDepth_);
+    archive.read("publishPointCloud", this->publishPointCloud_);
     return true;
   }
 

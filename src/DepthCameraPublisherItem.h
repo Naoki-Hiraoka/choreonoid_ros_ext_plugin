@@ -43,7 +43,9 @@ namespace cnoid {
     std::string pointCloudTopicName_;
     std::string frameId_;
     double minDistance_ = 0.0;
-    bool depthOnly_ = false;
+    bool publishColor_ = true;
+    bool publishDepth_ = true;
+    bool publishPointCloud_ = true;
 
     cnoid::ControllerIO* io_;
     cnoid::RangeCameraPtr sensor_;
