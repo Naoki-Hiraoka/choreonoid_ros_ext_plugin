@@ -4,10 +4,10 @@
 /clockをpublish. choreonoid1.8がreleaseされたらhttps://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/WorldROSItem.h を使いたい
 
 ## CameraPublisherItem
-camera画像をpublish. https://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/BodyROSItem.h との差異は、欲しいcamera画像だけをpublishする点と、camera_infoもpublishする点.
+camera画像をpublish. https://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/BodyROSItem.h との差異は、欲しいcamera画像だけをpublishする点と、camera_infoもpublishする点と、stampがpublishの時刻ではなくレンダリングの時刻になる点.
 
 ## DepthCameraPublisherItem
-depth_cameraのimage,depth,pointcloudをpublish. https://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/BodyROSItem.h との差異は、欲しいcameraだけをpublishする点と、camera_infoとdepth画像もpublishする点と、depthカメラが計測できる最小距離の制限をシミュレーションできる点(`frontClipDistance`だと透視してしまう).
+depth_cameraのimage,depth,pointcloudをpublish. https://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/BodyROSItem.h との差異は、欲しいcameraだけをpublishする点と、camera_infoとdepth画像もpublishする点と、stampがpublishの時刻ではなくレンダリングの時刻になる点と、depthカメラが計測できる最小距離の制限をシミュレーションできる点(`frontClipDistance`だと透視してしまう).
 
 ## OdometryCameraPublisherItem
 cameraの現在地と速度をnav_msgs/Odometryでpublish. (Ground Truthになってしまう)

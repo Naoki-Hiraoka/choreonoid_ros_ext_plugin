@@ -62,7 +62,7 @@ namespace cnoid {
 
   void OdometryCameraPublisherItem::updateVisionSensor() {
     std_msgs::Header header;
-    header.stamp.fromSec(std::max(0.0, this->io_->currentTime() - this->sensor_->delay()));
+    header.stamp.fromSec(this->io_->currentTime());
     if(this->frameId_.size()!=0) header.frame_id = this->frameId_;
     else header.frame_id = "odom";
 
