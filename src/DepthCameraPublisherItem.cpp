@@ -94,7 +94,7 @@ namespace cnoid {
 
   void DepthCameraPublisherItem::updateVisionSensor() {
     std_msgs::Header header;
-    header.stamp.fromSec(this->io_->currentTime());
+    header.stamp.fromSec(std::max(0.0, this->io_->currentTime() - this->sensor_->delay()));
     if(this->frameId_.size()!=0) header.frame_id = this->frameId_;
     else header.frame_id = this->sensor_->name();
 
