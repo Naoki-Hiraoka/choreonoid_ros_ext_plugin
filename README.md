@@ -27,4 +27,4 @@ linkやcameraの現在地と速度をnav_msgs/Odometryでpublish. (Ground Truth�
 # SimpleController
 
 ## SpringDamplerController
-関節をSpringDamper化するSimpleController
+任意複数関節をSpringDamper化するSimpleController
