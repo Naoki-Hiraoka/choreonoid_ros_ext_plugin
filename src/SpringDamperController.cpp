@@ -24,7 +24,7 @@ public:
     virtual bool initialize(SimpleControllerIO* io) override
     {
       std::vector<std::string> options = io->options();
-      for(size_t i=0;i<options.size()-2;i+=3){
+      for(size_t i=0;i+2<options.size();i+=3){
         std::string linkName = options[i];
         double pgain =  std::stod(options[i+1]);
         double dgain =  std::stod(options[i+2]);
