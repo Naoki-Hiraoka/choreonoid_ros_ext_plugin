@@ -3,6 +3,9 @@
 ## ClockPublisherItem
 /clockをpublish. choreonoid1.8がreleaseされたらhttps://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/WorldROSItem.h を使いたい
 
+## ClockShmItem
+現在時刻を共有メモリに書き込む. ClockPublisherItemの/clockはPCの負荷が高いとき、届かないことがあるため.
+
 ## CameraPublisherItem
 camera画像をpublish. https://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/BodyROSItem.h との差異は、欲しいcamera画像だけをpublishする点と、camera_infoもpublishする点と、stampがpublishの時刻ではなくレンダリングの時刻になる点.
 
