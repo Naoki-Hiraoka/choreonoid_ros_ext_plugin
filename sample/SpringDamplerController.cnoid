@@ -41,7 +41,7 @@ items:
               plugin: SimpleController
               class: SimpleControllerItem
               data: 
-                isImmediateMode: true
+                isNoDelayMode: true # 制御が1周期遅れるかどうか. ゲインが高いときは、trueにしないと発散する
                 controller: "SpringDamperController"
                 reloading: true
                 controllerOptions: "UPPER 2000.0 5.0"
@@ -88,6 +88,7 @@ items:
             contactCorrectionDepth: 0.0001
             contactCorrectionVelocityRatio: 10
             2Dmode: false
+            controllerThreads: false # choreonoid1.7では、falseにしないとControllerItemのisNoDelayMode: trueが無効になる
 
 views: 
   "Items": 
