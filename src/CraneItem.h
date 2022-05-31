@@ -26,6 +26,8 @@ namespace cnoid {
     virtual bool store(Archive& archive) override;
     virtual bool restore(const Archive& archive) override;
 
+    void setupROS(); bool setupROSDone_ = false;
+
     void onSimulationAboutToStart(SimulatorItem* simulatorItem);
     void onSimulationStarted();
     void onSimulationStep();

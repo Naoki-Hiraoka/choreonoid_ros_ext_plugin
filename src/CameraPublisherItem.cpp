@@ -41,28 +41,35 @@ namespace cnoid {
     }
   }
 
-  bool CameraPublisherItem::initialize(ControllerIO* io) {
-    this->io_ = io;
-    this->timeStep_ = io->worldTimeStep();
-  }
+  void CameraPublisherItem::setupROS() {
+    if(this->setupROSDone_) return;
+    this->setupROSDone_ = true;
 
-  bool CameraPublisherItem::start() {
     ros::NodeHandle nh;
 
     image_transport::ImageTransport it(nh);
 
+    std::string topicName;
+    if(this->imageTopicName_!="") topicName = this->imageTopicName_;
+    else topicName = this->cameraName_+"/color/image_raw";
+    this->pub_ = it.advertise(topicName, 1);
+
+    std::string infoName;
+    if(this->cameraInfoTopicName_!="") infoName = this->cameraInfoTopicName_;
+    else infoName = this->cameraName_+"/color/camera_info";
+    this->infoPub_ = nh.advertise<sensor_msgs::CameraInfo>(infoName, 1);
+  }
+
+  bool CameraPublisherItem::initialize(ControllerIO* io) {
+    this->io_ = io;
+    this->timeStep_ = io->worldTimeStep();
+
+    setupROS(); // コンストラクタやcallLaterだとname()やrestore()が未完了
+  }
+
+  bool CameraPublisherItem::start() {
     this->sensor_ = this->io_->body()->findDevice<cnoid::Camera>(this->cameraName_);
     if (this->sensor_) {
-      std::string topicName;
-      if(this->imageTopicName_!="") topicName = this->imageTopicName_;
-      else topicName = this->cameraName_+"/color/image_raw";
-      this->pub_ = it.advertise(topicName, 1);
-
-      std::string infoName;
-      if(this->cameraInfoTopicName_!="") infoName = this->cameraInfoTopicName_;
-      else infoName = this->cameraName_+"/color/camera_info";
-      this->infoPub_ = nh.advertise<sensor_msgs::CameraInfo>(infoName, 1);
-
       this->sensor_->sigStateChanged().connect(boost::bind(&CameraPublisherItem::updateVisionSensor, this));
     }else{
       this->io_->os() << "\e[0;31m" << "[CameraPublisherItem] camera [" << this->cameraName_ << "] not found"  << "\e[0m" << std::endl;

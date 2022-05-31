@@ -41,51 +41,59 @@ namespace cnoid {
         free(argv[i]);
       }
     }
+
+  }
+
+  void DepthCameraPublisherItem::setupROS() {
+    if(this->setupROSDone_) return;
+    this->setupROSDone_ = true;
+
+    ros::NodeHandle nh;
+
+    image_transport::ImageTransport it(nh);
+
+    if(this->publishColor_){
+      std::string topicName;
+      if(this->imageTopicName_!="") topicName = this->imageTopicName_;
+      else topicName = this->cameraName_+"/color/image_raw";
+      this->imagePub_ = it.advertise(topicName, 1);
+
+      std::string infoName;
+      if(this->cameraInfoTopicName_!="") infoName = this->cameraInfoTopicName_;
+      else infoName = this->cameraName_+"/color/camera_info";
+      this->infoPub_ = nh.advertise<sensor_msgs::CameraInfo>(infoName, 1);
+    }
+
+    if(this->publishDepth_){
+      std::string depthTopicName;
+      if(this->depthImageTopicName_!="") depthTopicName = this->depthImageTopicName_;
+      else depthTopicName = this->cameraName_+"/depth/image_raw";
+      this->depthImagePub_ = it.advertise(depthTopicName, 1);
+
+      std::string depthInfoName;
+      if(this->depthCameraInfoTopicName_!="") depthInfoName = this->depthCameraInfoTopicName_;
+      else depthInfoName = this->cameraName_+"/depth/camera_info";
+      this->depthInfoPub_ = nh.advertise<sensor_msgs::CameraInfo>(depthInfoName, 1);
+    }
+
+    if(this->publishPointCloud_){
+      std::string pointTopicName;
+      if(this->pointCloudTopicName_!="") pointTopicName = this->pointCloudTopicName_;
+      else pointTopicName = this->cameraName_+"/depth_registered/points";
+      this->pointCloudPub_ = nh.advertise<sensor_msgs::PointCloud2>(pointTopicName, 1);
+    }
   }
 
   bool DepthCameraPublisherItem::initialize(ControllerIO* io) {
     this->io_ = io;
     this->timeStep_ = io->worldTimeStep();
+
+    setupROS(); // コンストラクタやcallLaterだとname()やrestore()が未完了
   }
 
   bool DepthCameraPublisherItem::start() {
-    ros::NodeHandle nh;
-
-    image_transport::ImageTransport it(nh);
-
     this->sensor_ = this->io_->body()->findDevice<cnoid::RangeCamera>(this->cameraName_);
     if (this->sensor_) {
-      if(this->publishColor_){
-        std::string topicName;
-        if(this->imageTopicName_!="") topicName = this->imageTopicName_;
-        else topicName = this->cameraName_+"/color/image_raw";
-        this->imagePub_ = it.advertise(topicName, 1);
-
-        std::string infoName;
-        if(this->cameraInfoTopicName_!="") infoName = this->cameraInfoTopicName_;
-        else infoName = this->cameraName_+"/color/camera_info";
-        this->infoPub_ = nh.advertise<sensor_msgs::CameraInfo>(infoName, 1);
-      }
-
-      if(this->publishDepth_){
-        std::string depthTopicName;
-        if(this->depthImageTopicName_!="") depthTopicName = this->depthImageTopicName_;
-        else depthTopicName = this->cameraName_+"/depth/image_raw";
-        this->depthImagePub_ = it.advertise(depthTopicName, 1);
-
-        std::string depthInfoName;
-        if(this->depthCameraInfoTopicName_!="") depthInfoName = this->depthCameraInfoTopicName_;
-        else depthInfoName = this->cameraName_+"/depth/camera_info";
-        this->depthInfoPub_ = nh.advertise<sensor_msgs::CameraInfo>(depthInfoName, 1);
-      }
-
-      if(this->publishPointCloud_){
-        std::string pointTopicName;
-        if(this->pointCloudTopicName_!="") pointTopicName = this->pointCloudTopicName_;
-        else pointTopicName = this->cameraName_+"/depth_registered/points";
-        this->pointCloudPub_ = nh.advertise<sensor_msgs::PointCloud2>(pointTopicName, 1);
-      }
-
       this->sensor_->sigStateChanged().connect(boost::bind(&DepthCameraPublisherItem::updateVisionSensor, this));
     }else{
       this->io_->os() << "\e[0;31m" << "[DepthCameraPublisherItem] camera [" << this->cameraName_ << "] not found"  << "\e[0m" << std::endl;

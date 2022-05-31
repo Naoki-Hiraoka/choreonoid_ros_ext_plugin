@@ -37,23 +37,31 @@ namespace cnoid {
         free(argv[i]);
       }
     }
+
+  }
+
+  void OdometryCameraPublisherItem::setupROS() {
+    if(this->setupROSDone_) return;
+    this->setupROSDone_ = true;
+
+    ros::NodeHandle nh;
+
+    std::string topicName;
+    if(this->odometryTopicName_!="") topicName = this->odometryTopicName_;
+    else topicName = this->cameraName_+"/odom";
+    this->pub_ = nh.advertise<nav_msgs::Odometry>(topicName, 1);
   }
 
   bool OdometryCameraPublisherItem::initialize(ControllerIO* io) {
     this->io_ = io;
     this->timeStep_ = io->worldTimeStep();
+
+    setupROS(); // コンストラクタやcallLaterだとname()やrestore()が未完了
   }
 
   bool OdometryCameraPublisherItem::start() {
-    ros::NodeHandle nh;
-
     this->sensor_ = this->io_->body()->findDevice<cnoid::Camera>(this->cameraName_);
     if (this->sensor_) {
-      std::string topicName;
-      if(this->odometryTopicName_!="") topicName = this->odometryTopicName_;
-      else topicName = this->cameraName_+"/odom";
-      this->pub_ = nh.advertise<nav_msgs::Odometry>(topicName, 1);
-
       this->sensor_->sigStateChanged().connect(boost::bind(&OdometryCameraPublisherItem::updateVisionSensor, this));
     }else{
       this->io_->os() << "\e[0;31m" << "[OdometryCameraPublisherItem] camera [" << this->cameraName_ << "] not found"  << "\e[0m" << std::endl;

@@ -14,6 +14,7 @@ namespace cnoid {
     static void initializeClass(ExtensionManager* ext);
 
     DepthCameraPublisherItem();
+
     virtual bool initialize(ControllerIO* io) override;
     virtual bool start() override;
 
@@ -27,6 +28,7 @@ namespace cnoid {
     virtual bool restore(const Archive& archive) override;
 
   protected:
+    void setupROS(); bool setupROSDone_ = false;
     void updateVisionSensor();
 
     image_transport::Publisher imagePub_;

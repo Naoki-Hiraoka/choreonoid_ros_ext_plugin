@@ -13,6 +13,7 @@ namespace cnoid {
     static void initializeClass(ExtensionManager* ext);
 
     OdometryCameraPublisherItem();
+
     virtual bool initialize(ControllerIO* io) override;
     virtual bool start() override;
 
@@ -26,6 +27,7 @@ namespace cnoid {
     virtual bool restore(const Archive& archive) override;
 
   protected:
+    void setupROS(); bool setupROSDone_ = false;
     void updateVisionSensor();
 
     ros::Publisher pub_;

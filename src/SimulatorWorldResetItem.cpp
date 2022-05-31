@@ -40,7 +40,18 @@ namespace cnoid {
     }
 
     SimulationBar::instance()->sigSimulationAboutToStart().connect([&](SimulatorItem* simulatorItem){onSimulationAboutToStart(simulatorItem);});
+  }
 
+  void SimulatorWorldResetItem::setupROS() {
+    if(this->setupROSDone_) return;
+    this->setupROSDone_ = true;
+
+    // コンストラクタ内だとthis->name()が設定されていない
+    ros::NodeHandle nh;
+    nh.setCallbackQueue(&(this->callbackQueue_));
+    this->spinner_ = std::make_shared<ros::AsyncSpinner>(1,&(this->callbackQueue_));
+    this->ResetSrv_ = nh.advertiseService(this->name()+"/Reset",&SimulatorWorldResetItem::onResetSrv,this);
+    this->spinner_->start();
   }
 
   bool SimulatorWorldResetItem::store(Archive& archive) {
@@ -55,16 +66,11 @@ namespace cnoid {
   {
     this->currentSimulatorItem_ = simulatorItem;
 
-    // コンストラクタ内だとthis->name()が設定されていない
-    ros::NodeHandle nh;
-    nh.setCallbackQueue(&(this->callbackQueue_));
-    this->spinner_ = std::make_shared<ros::AsyncSpinner>(1,&(this->callbackQueue_));
-    this->ResetSrv_ = nh.advertiseService(this->name()+"/Reset",&SimulatorWorldResetItem::onResetSrv,this);
-    this->spinner_->start();
-
     this->currentSimulatorItemConnections_.add(
         simulatorItem->sigSimulationStarted().connect(
             [&](){ onSimulationStarted(); }));
+
+    setupROS(); // コンストラクタやcallLaterだとname()やrestore()が未完了
   }
 
   void SimulatorWorldResetItem::onSimulationStarted()

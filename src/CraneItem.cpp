@@ -43,6 +43,17 @@ namespace cnoid {
 
   }
 
+  void CraneItem::setupROS() {
+    if(this->setupROSDone_) return;
+    this->setupROSDone_ = true;
+
+    ros::NodeHandle nh;
+    nh.setCallbackQueue(&(this->callbackQueue_));
+    this->spinner_ = std::make_shared<ros::AsyncSpinner>(1,&(this->callbackQueue_));
+    this->LiftSrv_ = nh.advertiseService(this->name()+"/lift",&CraneItem::onLiftSrv,this);
+    this->spinner_->start();
+  }
+
   void CraneItem::onPositionChanged(){
     BodyItem* ownerBodyItem = findOwnerItem<BodyItem>();
     if(ownerBodyItem){
@@ -96,14 +107,7 @@ namespace cnoid {
         simulatorItem->sigSimulationStarted().connect(
             [&](){ onSimulationStarted(); }));
 
-    // コンストラクタ内だとthis->name()が設定されていない
-    ros::NodeHandle nh;
-    nh.setCallbackQueue(&(this->callbackQueue_));
-    this->spinner_ = std::make_shared<ros::AsyncSpinner>(1,&(this->callbackQueue_));
-    this->LiftSrv_ = nh.advertiseService(this->name()+"/lift",&CraneItem::onLiftSrv,this);
-    this->spinner_->start();
-
-
+    setupROS(); // コンストラクタやcallLaterだとname()やrestore()が未完了
   }
 
   void CraneItem::onSimulationStarted()
