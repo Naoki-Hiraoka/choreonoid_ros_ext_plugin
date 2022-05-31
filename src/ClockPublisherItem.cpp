@@ -51,7 +51,7 @@ namespace cnoid {
 
   void ClockPublisherItem::onSimulationStarted()
   {
-    this->currentSimulatorItem_->addMidDynamicsFunction([&](){ onSimulationStep(); });
+    this->currentSimulatorItem_->addPreDynamicsFunction([&](){ onSimulationStep(); });
   }
 
   void ClockPublisherItem::onSimulationStep()

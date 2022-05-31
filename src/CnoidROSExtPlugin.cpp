@@ -3,6 +3,7 @@
 #include <cnoid/MessageView>
 
 #include "ClockPublisherItem.h"
+#include "ClockShmItem.h"
 #include "CraneItem.h"
 #include "CameraPublisherItem.h"
 #include "DepthCameraPublisherItem.h"
@@ -25,6 +26,7 @@ public:
     virtual bool initialize() override
     {
       ClockPublisherItem::initializeClass(this);
+      ClockShmItem::initializeClass(this);
       CraneItem::initializeClass(this);
       CameraPublisherItem::initializeClass(this);
       DepthCameraPublisherItem::initializeClass(this);

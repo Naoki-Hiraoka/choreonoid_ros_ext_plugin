@@ -27,6 +27,7 @@ endforeach(lib)
 add_library(CnoidROSExtPlugin SHARED
   src/CnoidROSExtPlugin.cpp
   src/ClockPublisherItem.cpp
+  src/ClockShmItem.cpp
   src/CraneItem.cpp
   src/CameraPublisherItem.cpp
   src/DepthCameraPublisherItem.cpp
