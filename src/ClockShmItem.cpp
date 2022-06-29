@@ -45,8 +45,8 @@ namespace cnoid {
     double timestep = this->currentSimulatorItem_->worldTimeStep();
     int frame = this->currentSimulatorItem_->simulationFrame();
 
-    long timestep_usec = timestep * 1000000;
-    long long time_usec = frame * timestep_usec;
+    unsigned long timestep_usec = timestep * 1000000;
+    unsigned long long time_usec = frame * timestep_usec;
 
     c_shm->tv_sec = time_usec / 1000000;
     c_shm->tv_usec = time_usec - c_shm->tv_sec * 1000000;

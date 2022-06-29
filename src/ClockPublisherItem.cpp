@@ -56,12 +56,17 @@ namespace cnoid {
 
   void ClockPublisherItem::onSimulationStep()
   {
-    double time = this->currentSimulatorItem_->simulationTime();
+    double timestep = this->currentSimulatorItem_->worldTimeStep();
+    int frame = this->currentSimulatorItem_->simulationFrame();
+
+    unsigned long timestep_nsec = timestep * 1000000000;
+    unsigned long long time_nsec = frame * timestep_nsec;
 
     // Publish clock
-    rosgraph_msgs::Clock clock;
-    clock.clock.fromSec(time);
-    this->clockPublisher_.publish(clock);
+    rosgraph_msgs::Clock msg;
+    msg.clock.sec = time_nsec / 1000000000;
+    msg.clock.nsec = time_nsec - msg.clock.sec * 1000000000;
+    this->clockPublisher_.publish(msg);
   }
 }
 
