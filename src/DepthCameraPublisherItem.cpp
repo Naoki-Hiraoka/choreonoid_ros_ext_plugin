@@ -89,14 +89,18 @@ namespace cnoid {
     this->timeStep_ = io->worldTimeStep();
 
     setupROS(); // コンストラクタやcallLaterだとname()やrestore()が未完了
+
+    return true;
   }
 
   bool DepthCameraPublisherItem::start() {
     this->sensor_ = this->io_->body()->findDevice<cnoid::RangeCamera>(this->cameraName_);
     if (this->sensor_) {
       this->sensor_->sigStateChanged().connect(boost::bind(&DepthCameraPublisherItem::updateVisionSensor, this));
+      return true;
     }else{
       this->io_->os() << "\e[0;31m" << "[DepthCameraPublisherItem] camera [" << this->cameraName_ << "] not found"  << "\e[0m" << std::endl;
+      return false;
     }
   }
 

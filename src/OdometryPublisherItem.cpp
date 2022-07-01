@@ -56,14 +56,18 @@ namespace cnoid {
     this->timeStep_ = io->worldTimeStep();
 
     setupROS(); // コンストラクタやcallLaterだとname()やrestore()が未完了
+
+    return true;
   }
 
   bool OdometryPublisherItem::start() {
     this->link_ = this->io_->body()->link(this->targetName_);
     if(!link_) this->sensor_ = this->io_->body()->findDevice<cnoid::Camera>(this->targetName_);
     if (this->link_ || this->sensor_) {
+      return true;
     }else{
       this->io_->os() << "\e[0;31m" << "[OdometryPublisherItem] camera [" << this->targetName_ << "] not found"  << "\e[0m" << std::endl;
+      return false;
     }
   }
 
