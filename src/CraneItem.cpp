@@ -84,6 +84,7 @@ namespace cnoid {
     archive.write("pgain", this->pgain_);
     archive.write("dgain", this->dgain_);
     archive.write("dgainR", this->dgainR_);
+    archive.write("liftStart", this->liftStart_);
     return true;
   }
 
@@ -97,6 +98,7 @@ namespace cnoid {
     archive.read("pgain", this->pgain_);
     archive.read("dgain", this->dgain_);
     archive.read("dgainR", this->dgainR_);
+    archive.read("liftStart", this->liftStart_);
     return true;
   }
 
@@ -112,13 +114,14 @@ namespace cnoid {
 
   void CraneItem::onSimulationStarted()
   {
-    this->state_ = UP;
+    if(this->liftStart_) this->state_ = UP;
+    else this->state_ = DISABLED;
     if(this->bodyItem_){
       cnoid::LinkPtr link = this->bodyItem_->body()->link(this->linkName_);
       if(link){
-        this->targetHeight_ = (link->p() + link->R() * this->localPos_)[2];
         this->prevp_ = link->p() + link->R() * this->localPos_;
         this->prevR_ = link->R();
+        this->targetHeight_ = this->prevp_[2];
       }
       this->prevError_ = 0.0;
     }

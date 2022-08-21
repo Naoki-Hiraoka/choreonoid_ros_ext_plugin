@@ -56,7 +56,7 @@ namespace cnoid {
     double pgain_;
     double dgain_;
     double dgainR_;
-
+    bool liftStart_ = true;
   };
 
   typedef ref_ptr<CraneItem> CraneItemPtr;
