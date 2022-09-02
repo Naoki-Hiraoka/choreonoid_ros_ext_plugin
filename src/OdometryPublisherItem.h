@@ -4,6 +4,10 @@
 #include <cnoid/ControllerItem>
 #include <cnoid/Camera>
 #include <ros/ros.h>
+#include <nav_msgs/Odometry.h>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 
 namespace cnoid {
 
@@ -28,8 +32,14 @@ namespace cnoid {
 
   protected:
     void setupROS(); bool setupROSDone_ = false;
+    void publishThreadFunc();
 
-    ros::Publisher pub_;
+    std::thread publishThread_;
+    std::mutex publishMtx_;
+    std::condition_variable publishCond_;
+
+    ros::Publisher odometryPub_;
+    std::shared_ptr<nav_msgs::Odometry> odometryMsg_;
 
     std::string targetName_;
     std::string odometryTopicName_;

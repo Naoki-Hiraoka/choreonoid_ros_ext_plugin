@@ -5,6 +5,12 @@
 #include <cnoid/RangeCamera>
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/CameraInfo.h>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 
 namespace cnoid {
 
@@ -30,12 +36,22 @@ namespace cnoid {
   protected:
     void setupROS(); bool setupROSDone_ = false;
     void updateVisionSensor();
+    void publishThreadFunc();
+
+    std::thread publishThread_;
+    std::mutex publishMtx_;
+    std::condition_variable publishCond_;
 
     image_transport::Publisher imagePub_;
+    std::shared_ptr<sensor_msgs::Image> imageMsg_;
     ros::Publisher infoPub_;
+    std::shared_ptr<sensor_msgs::CameraInfo> infoMsg_;
     image_transport::Publisher depthImagePub_;
+    std::shared_ptr<sensor_msgs::Image> depthImageMsg_;
     ros::Publisher depthInfoPub_;
+    std::shared_ptr<sensor_msgs::CameraInfo> depthInfoMsg_;
     ros::Publisher pointCloudPub_;
+    std::shared_ptr<sensor_msgs::PointCloud2> pointCloudMsg_;
 
     std::string cameraName_;
     std::string imageTopicName_;

@@ -1,7 +1,6 @@
 #include "ClockPublisherItem.h"
 #include <QCoreApplication>
 #include <cnoid/ItemManager>
-#include <rosgraph_msgs/Clock.h>
 
 namespace cnoid {
 
@@ -36,7 +35,8 @@ namespace cnoid {
         free(argv[i]);
       }
     }
-    this->clockPublisher_ = ros::NodeHandle().advertise<rosgraph_msgs::Clock>("/clock", 1);
+    this->clockPub_ = ros::NodeHandle().advertise<rosgraph_msgs::Clock>("/clock", 1);
+    this->publishThread_ = std::thread(std::bind(&ClockPublisherItem::publishThreadFunc, this));
     SimulationBar::instance()->sigSimulationAboutToStart().connect([&](SimulatorItem* simulatorItem){onSimulationAboutToStart(simulatorItem);});
   }
 
@@ -55,17 +55,36 @@ namespace cnoid {
 
   void ClockPublisherItem::onSimulationStep()
   {
-    double timestep = this->currentSimulatorItem_->worldTimeStep();
-    int frame = this->currentSimulatorItem_->simulationFrame();
+    {
+      std::lock_guard<std::mutex> lk(this->publishMtx_);
 
-    unsigned long timestep_nsec = timestep * 1000000000;
-    unsigned long long time_nsec = frame * timestep_nsec;
+      double timestep = this->currentSimulatorItem_->worldTimeStep();
+      int frame = this->currentSimulatorItem_->simulationFrame();
 
-    // Publish clock
-    rosgraph_msgs::Clock msg;
-    msg.clock.sec = time_nsec / 1000000000;
-    msg.clock.nsec = time_nsec - msg.clock.sec * 1000000000;
-    this->clockPublisher_.publish(msg);
+      unsigned long timestep_nsec = timestep * 1000000000;
+      unsigned long long time_nsec = frame * timestep_nsec;
+
+      // Publish clock
+      std::shared_ptr<rosgraph_msgs::Clock> msg = std::make_shared<rosgraph_msgs::Clock>();
+      msg->clock.sec = time_nsec / 1000000000;
+      msg->clock.nsec = time_nsec - msg->clock.sec * 1000000000;
+      this->clockMsg_ = msg;
+    }
+    this->publishCond_.notify_all();
   }
+
+  void ClockPublisherItem::publishThreadFunc(){
+    while(ros::ok()){
+      std::shared_ptr<rosgraph_msgs::Clock> clockMsg;
+      {
+        std::unique_lock<std::mutex> lk(this->publishMtx_);
+        this->publishCond_.wait(lk);
+        clockMsg = this->clockMsg_; this->clockMsg_ = nullptr;
+      }
+      if(clockMsg) this->clockPub_.publish(*clockMsg);
+    }
+    return;
+  }
+
 }
 

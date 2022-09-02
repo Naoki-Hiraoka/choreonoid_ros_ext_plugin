@@ -2,7 +2,6 @@
 #include <QCoreApplication>
 #include <cnoid/ItemManager>
 #include <cnoid/Archive>
-#include <nav_msgs/Odometry.h>
 
 namespace cnoid {
 
@@ -48,7 +47,8 @@ namespace cnoid {
     std::string topicName;
     if(this->odometryTopicName_!="") topicName = this->odometryTopicName_;
     else topicName = this->targetName_+"/odom";
-    this->pub_ = nh.advertise<nav_msgs::Odometry>(topicName, 1);
+    this->odometryPub_ = nh.advertise<nav_msgs::Odometry>(topicName, 1);
+    this->publishThread_ = std::thread(std::bind(&OdometryPublisherItem::publishThreadFunc, this));
   }
 
   bool OdometryPublisherItem::initialize(ControllerIO* io) {
@@ -72,70 +72,74 @@ namespace cnoid {
   }
 
   bool OdometryPublisherItem::control() {
-    if(!this->link_ && !this->sensor_) return true;
-
-    if(this->timeStep_ < 1.0 / this->publishRate_){
-      this->time_ += this->timeStep_;
-      if(this->time_ < 1.0 / this->publishRate_) return true;
-      this->time_ -= 1.0 / this->publishRate_;
-    }
-
-    std_msgs::Header header;
-    header.stamp.fromSec(this->io_->currentTime());
-    if(this->frameId_.size()!=0) header.frame_id = this->frameId_;
-    else header.frame_id = "odom";
-
-    nav_msgs::Odometry odom;
     {
-      odom.header = header;
-      if(this->childFrameId_.size()!=0) odom.child_frame_id = this->childFrameId_;
-      else odom.child_frame_id = this->targetName_;
+      std::lock_guard<std::mutex> lk(this->publishMtx_);
+      if(!this->link_ && !this->sensor_) return true;
 
-      cnoid::Position pose;
-      if(this->link_){
-        pose = this->link_->T();
-      }else{
-        pose = this->sensor_->link()->T() * this->sensor_->T_local();
-        // Rotate sensor->localR 180[deg] because OpenHRP3 camera -Z axis equals to ROS camera Z axis
-        // http://www.openrtp.jp/openhrp3/jp/create_model.html
-        pose.linear() = (pose.linear() * cnoid::AngleAxis(M_PI, cnoid::Vector3::UnitX())).eval();
+      if(this->timeStep_ < 1.0 / this->publishRate_){
+        this->time_ += this->timeStep_;
+        if(this->time_ < 1.0 / this->publishRate_) return true;
+        this->time_ -= 1.0 / this->publishRate_;
       }
-      odom.pose.pose.position.x = pose.translation()[0];
-      odom.pose.pose.position.y = pose.translation()[1];
-      odom.pose.pose.position.z = pose.translation()[2];
-      cnoid::Quaternion quat = cnoid::Quaternion(pose.linear());
-      odom.pose.pose.orientation.x = quat.x();
-      odom.pose.pose.orientation.y = quat.y();
-      odom.pose.pose.orientation.z = quat.z();
-      odom.pose.pose.orientation.w = quat.w();
-      for(int i=0;i<6;i++){
-        for(int j=0;j<6;j++){
-          if(i==j) odom.pose.covariance[i*6+j] = this->poseCovariance_;
-          else odom.pose.covariance[i*6+j] = 0.0;
+
+      std_msgs::Header header;
+      header.stamp.fromSec(this->io_->currentTime());
+      if(this->frameId_.size()!=0) header.frame_id = this->frameId_;
+      else header.frame_id = "odom";
+
+      std::shared_ptr<nav_msgs::Odometry> odom = std::make_shared<nav_msgs::Odometry>();
+      {
+        odom->header = header;
+        if(this->childFrameId_.size()!=0) odom->child_frame_id = this->childFrameId_;
+        else odom->child_frame_id = this->targetName_;
+
+        cnoid::Position pose;
+        if(this->link_){
+          pose = this->link_->T();
+        }else{
+          pose = this->sensor_->link()->T() * this->sensor_->T_local();
+          // Rotate sensor->localR 180[deg] because OpenHRP3 camera -Z axis equals to ROS camera Z axis
+          // http://www.openrtp.jp/openhrp3/jp/create_model.html
+          pose.linear() = (pose.linear() * cnoid::AngleAxis(M_PI, cnoid::Vector3::UnitX())).eval();
         }
-      }
-
-      cnoid::Vector6 twist;
-      twist.head<3>() = pose.linear().transpose() * (pose.translation() - this->prevPose_.translation()) / this->timeStep_;
-      cnoid::AngleAxis angleAxis = cnoid::AngleAxis(this->prevPose_.linear().transpose() * pose.linear());
-      twist.tail<3>() = angleAxis.angle()*angleAxis.axis() / this->timeStep_;
-      odom.twist.twist.linear.x = twist[0];
-      odom.twist.twist.linear.y = twist[1];
-      odom.twist.twist.linear.z = twist[2];
-      odom.twist.twist.angular.x = twist[3];
-      odom.twist.twist.angular.y = twist[4];
-      odom.twist.twist.angular.z = twist[5];
-      for(int i=0;i<6;i++){
-        for(int j=0;j<6;j++){
-          if(i==j) odom.twist.covariance[i*6+j] = this->twistCovariance_;
-          else odom.twist.covariance[i*6+j] = 0.0;
+        odom->pose.pose.position.x = pose.translation()[0];
+        odom->pose.pose.position.y = pose.translation()[1];
+        odom->pose.pose.position.z = pose.translation()[2];
+        cnoid::Quaternion quat = cnoid::Quaternion(pose.linear());
+        odom->pose.pose.orientation.x = quat.x();
+        odom->pose.pose.orientation.y = quat.y();
+        odom->pose.pose.orientation.z = quat.z();
+        odom->pose.pose.orientation.w = quat.w();
+        for(int i=0;i<6;i++){
+          for(int j=0;j<6;j++){
+            if(i==j) odom->pose.covariance[i*6+j] = this->poseCovariance_;
+            else odom->pose.covariance[i*6+j] = 0.0;
+          }
         }
+
+        cnoid::Vector6 twist;
+        twist.head<3>() = pose.linear().transpose() * (pose.translation() - this->prevPose_.translation()) / this->timeStep_;
+        cnoid::AngleAxis angleAxis = cnoid::AngleAxis(this->prevPose_.linear().transpose() * pose.linear());
+        twist.tail<3>() = angleAxis.angle()*angleAxis.axis() / this->timeStep_;
+        odom->twist.twist.linear.x = twist[0];
+        odom->twist.twist.linear.y = twist[1];
+        odom->twist.twist.linear.z = twist[2];
+        odom->twist.twist.angular.x = twist[3];
+        odom->twist.twist.angular.y = twist[4];
+        odom->twist.twist.angular.z = twist[5];
+        for(int i=0;i<6;i++){
+          for(int j=0;j<6;j++){
+            if(i==j) odom->twist.covariance[i*6+j] = this->twistCovariance_;
+            else odom->twist.covariance[i*6+j] = 0.0;
+          }
+        }
+
+        this->prevPose_ = pose;
       }
 
-      this->pub_.publish(odom);
-
-      this->prevPose_ = pose;
+      this->odometryMsg_ = odom;
     }
+    this->publishCond_.notify_all();
 
     return true;
   }
@@ -160,6 +164,19 @@ namespace cnoid {
     archive.read("twistCovariance", this->twistCovariance_);
     archive.read("publishRate", this->publishRate_);
     return true;
+  }
+
+  void OdometryPublisherItem::publishThreadFunc(){
+    while(ros::ok()){
+      std::shared_ptr<nav_msgs::Odometry> odometryMsg;
+      {
+        std::unique_lock<std::mutex> lk(this->publishMtx_);
+        this->publishCond_.wait(lk);
+        odometryMsg = this->odometryMsg_; this->odometryMsg_ = nullptr;
+      }
+      if(odometryMsg) this->odometryPub_.publish(*odometryMsg);
+    }
+    return;
   }
 
 }

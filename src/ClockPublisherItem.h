@@ -3,9 +3,13 @@
 
 #include <cnoid/Item>
 #include <ros/ros.h>
+#include <rosgraph_msgs/Clock.h>
 #include <cnoid/SimulationBar>
 #include <cnoid/SimulatorItem>
 #include <cnoid/ConnectionSet>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 
 namespace cnoid {
 
@@ -20,8 +24,14 @@ namespace cnoid {
     void onSimulationAboutToStart(SimulatorItem* simulatorItem);
     void onSimulationStarted();
     void onSimulationStep();
+    void publishThreadFunc();
 
-    ros::Publisher clockPublisher_;
+    std::thread publishThread_;
+    std::mutex publishMtx_;
+    std::condition_variable publishCond_;
+
+    ros::Publisher clockPub_;
+    std::shared_ptr<rosgraph_msgs::Clock> clockMsg_;
     SimulatorItem* currentSimulatorItem_;
     ScopedConnectionSet currentSimulatorItemConnections_;
   };
