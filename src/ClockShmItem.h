@@ -16,6 +16,8 @@ namespace cnoid {
 
     ClockShmItem();
 
+    virtual bool store(Archive& archive) override;
+    virtual bool restore(const Archive& archive) override;
   protected:
     void onSimulationAboutToStart(SimulatorItem* simulatorItem);
     void onSimulationStarted();
@@ -23,7 +25,8 @@ namespace cnoid {
 
     SimulatorItem* currentSimulatorItem_;
     ScopedConnectionSet currentSimulatorItemConnections_;
-    struct timeval* c_shm;
+    struct timeval* c_shm = nullptr;
+    int shmKey_ = 969;
   };
 
   typedef ref_ptr<ClockShmItem> ClockShmItemPtr;
