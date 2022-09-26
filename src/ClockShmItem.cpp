@@ -25,7 +25,6 @@ namespace cnoid {
 
     // コンストラクタやcallLaterだとname()やrestore()が未完了
     if(!this->c_shm){
-      std::cerr << "[ClockShmItem] shmget " << this->shmKey_ << std::endl;
       MessageView::instance()->cout() << "[ClockShmItem] shmget " << this->shmKey_ << std::endl;
       int shm_id = shmget(this->shmKey_, sizeof(struct timeval), 0666|IPC_CREAT);
       if(shm_id == -1) {
