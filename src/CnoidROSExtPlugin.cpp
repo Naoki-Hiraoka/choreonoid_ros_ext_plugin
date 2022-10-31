@@ -10,7 +10,7 @@
 #include "OdometryCameraPublisherItem.h"
 #include "OdometryPublisherItem.h"
 #include "SimulatorWorldResetItem.h"
-#include "PositionDraggerItem.h"
+//#include "PositionDraggerItem.h"
 
 using namespace cnoid;
 
@@ -33,7 +33,7 @@ public:
       OdometryCameraPublisherItem::initializeClass(this);
       OdometryPublisherItem::initializeClass(this);
       SimulatorWorldResetItem::initializeClass(this);
-      PositionDraggerItem::initializeClass(this);
+      //PositionDraggerItem::initializeClass(this);
       return true;
     }
 
