@@ -14,15 +14,6 @@ include_directories(
   ${CHOREONOID_INCLUDE_DIRS}
   )
 
-# 相対パスを絶対パスに直す
-set(CHOREONOID_LIBRARIES_ABS)
-foreach(lib ${CHOREONOID_LIBRARIES})
-  find_library(${lib}_abs NAMES ${lib} PATHS ${CHOREONOID_LIBRARY_DIRS})
-  set(CHOREONOID_LIBRARIES_ABS ${CHOREONOID_LIBRARIES_ABS} ${${lib}_abs})
-endforeach(lib)
-
-
-
 
 add_library(CnoidROSExtPlugin SHARED
   src/CnoidROSExtPlugin.cpp
@@ -38,7 +29,7 @@ add_library(CnoidROSExtPlugin SHARED
   )
 target_link_libraries(CnoidROSExtPlugin
   ${catkin_LIBRARIES}
-  ${CHOREONOID_LIBRARIES_ABS}
+  ${CHOREONOID_BODY_PLUGIN_LIBRARIES}
   )
 
 set_target_properties(CnoidROSExtPlugin PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CHOREONOID_PLUGIN_DIR})
