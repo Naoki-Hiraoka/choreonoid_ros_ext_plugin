@@ -14,6 +14,9 @@ include_directories(
   ${CHOREONOID_INCLUDE_DIRS}
   )
 
+link_directories(
+  ${CHOREONOID_LIBRARY_DIRS}
+  )
 
 add_library(CnoidROSExtPlugin SHARED
   src/CnoidROSExtPlugin.cpp
