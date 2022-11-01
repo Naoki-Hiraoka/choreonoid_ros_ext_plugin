@@ -31,3 +31,6 @@ linkやcameraの現在地と速度をnav_msgs/Odometryでpublish. (Ground Truth�
 
 ## SpringDamplerController
 任意複数関節をSpringDamper化するSimpleController
+
+# choreonoid1.8で使用する場合
+PositionDraggerItemはビルドできないのでをコメントアウトせよ
