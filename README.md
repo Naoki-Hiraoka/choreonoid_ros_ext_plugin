@@ -1,5 +1,9 @@
 # ROSExt Plugin
 
+This repository is deprecated and for choreonoid release-1.7.
+
+For choreonoid release-2.1: https://github.com/Naoki-Hiraoka/choreonoid_ros_ext2_plugin
+
 ## ClockPublisherItem
 /clockをpublish. choreonoid1.8がreleaseされたらhttps://github.com/choreonoid/choreonoid_ros/blob/master/src/plugin/WorldROSItem.h を使いたい
 
