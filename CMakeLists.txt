@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(choreonoid_ros_ext_plugin)
 
-add_compile_options(-std=c++11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Release)
 
 find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs image_transport nav_msgs)
