@@ -148,7 +148,7 @@ namespace cnoid {
         this->targetHeight_ = std::min(this->targetHeight_, this->maxHeight_);
         break;
       case DOWN:
-        this->targetHeight_ -= this->upVelocity_ * dt;
+        this->targetHeight_ -= this->downVelocity_ * dt;
         if(this->targetHeight_< this->minHeight_) this->state_ = DISABLED;
         break;
       default:
